@@ -1,1 +1,2 @@
 zensical==0.0.43
+git+https://github.com/squidfunk/mike.git

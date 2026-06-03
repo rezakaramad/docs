@@ -2,28 +2,26 @@ name: Documentation
 on:
   push:
     branches:
-      - master
       - main
+      - next
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/configure-pages@v6
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: 3.x
-      - run: pip install zensical
-      - run: zensical build --clean
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: site
-      - uses: actions/deploy-pages@v5
-        id: deployment
+      - run: pip install -r requirements.txt
+      - run: git config user.name "github-actions[bot]"
+      - run: git config user.email "github-actions[bot]@users.noreply.github.com"
+      - if: github.ref == 'refs/heads/main'
+        run: mike deploy --push --update-aliases stable latest
+      - if: github.ref == 'refs/heads/main'
+        run: mike set-default --push latest
+      - if: github.ref == 'refs/heads/next'
+        run: mike deploy --push next
